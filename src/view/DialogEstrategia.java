@@ -29,24 +29,26 @@ public class DialogEstrategia extends JDialog {
 	private JTextField txtGainParcial;
 	JLabel lblMsg;
 	private final JPanel contentPanel = new JPanel();
+	
+	IFrameEstrategias pai;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+/*	public static void main(String[] args) {
 		try {
-			DialogEstrategia dialog = new DialogEstrategia();
+			DialogEstrategia dialog = new DialogEstrategia(IFrameEstrategias pai);
 			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dialog.setVisible(true);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	/**
 	 * Create the dialog.
 	 */
-	public DialogEstrategia() {
+	public DialogEstrategia(IFrameEstrategias pai) {
 		setTitle("Estrat\u00E9gia");
 		setBounds(100, 100, 400, 206);
 		getContentPane().setLayout(new BorderLayout());
@@ -171,6 +173,8 @@ public class DialogEstrategia extends JDialog {
 		lblMsg = new JLabel("New label");
 		lblMsg.setForeground(Color.BLUE);
 		panel_1.add(lblMsg);
+		
+		this.pai=pai;
 	}
 	
 	private void salvar(){
@@ -181,7 +185,7 @@ public class DialogEstrategia extends JDialog {
 					Utilitario.converteStringParaBigDecimal(txtStop.getText()),
 					Utilitario.converteStringParaBigDecimal(txtGain.getText()),
 					Utilitario.converteStringParaBigDecimal(txtGainParcial.getText()),
-					null
+					null,null
 					);
 
 			new EstrategiaDao().inserir(neg);
@@ -194,6 +198,8 @@ public class DialogEstrategia extends JDialog {
 			txtStop.setText("");
 			txtGain.setText("");
 			txtGainParcial.setText("");
+			
+			pai.refresh();
 			
 		}catch(Exception e){
 			lblMsg.setText("Erro ao salvar!");

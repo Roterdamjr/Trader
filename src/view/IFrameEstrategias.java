@@ -26,6 +26,7 @@ import dao.EstrategiaDao;
 import javax.swing.JTextField;
 
 public class IFrameEstrategias extends JInternalFrame {
+	
 	private JTable tblEstrategia;
 	private JTextField txtPatrimonio;
 	/**
@@ -109,11 +110,11 @@ public class IFrameEstrategias extends JInternalFrame {
 		});
 		panel_2.add(btnNovo);
 
-		populaTabelaEstrategia();
+		refresh();
 	}
 
 	private void novo(){
-		DialogEstrategia dlg= new DialogEstrategia();
+		DialogEstrategia dlg= new DialogEstrategia(this);
 		dlg.setVisible(true);
 		populaTabelaEstrategia();
 	} 
@@ -125,11 +126,27 @@ public class IFrameEstrategias extends JInternalFrame {
 		int id= Utilitario.converteBigDecimalParaInt(cel);
 		new EstrategiaDao().excluir(id);
 		
-		populaTabelaEstrategia();
+		refresh();
 	}
 
-
-
+	public void refresh(){
+		int nLinhas=populaTabelaEstrategia();
+		if(nLinhas>0){
+			BigDecimal quantLinhas=Utilitario.converteIntParaBigDecimal(nLinhas);
+			
+			BigDecimal patrimonio=Utilitario.converteStringParaBigDecimal(txtPatrimonio.getText());	
+		
+			BigDecimal valorPorAtivo= patrimonio.divide(quantLinhas,BigDecimal.ROUND_UP);
+			
+			DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+			for(int i=0;i<nLinhas;i++){
+				BigDecimal vlCompra=(BigDecimal)modelo.getValueAt(i, 2);
+				BigDecimal quantidade=valorPorAtivo.divide(vlCompra,BigDecimal.ROUND_UP);
+				modelo.setValueAt(quantidade,i, 6);
+			}
+		}
+	}
+	
 	private int populaTabelaEstrategia(){
 		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
 
@@ -149,20 +166,13 @@ public class IFrameEstrategias extends JInternalFrame {
 		//esconde colunas com sq
 		tblEstrategia.getColumnModel().getColumn(0).setMinWidth(0);
 		tblEstrategia.getColumnModel().getColumn(0).setMaxWidth(0);
-				
+		
+		//retorna o numero de linhas da tablea		
 		DefaultTableModel modelo2= (DefaultTableModel)tblEstrategia.getModel();
 		return modelo2.getRowCount();
 	}
 	
-	private void refresh(){
-		int quantLinhas=populaTabelaEstrategia();
-		
-		BigDecimal patrimonio=Utilitario.converteStringParaBigDecimal(txtPatrimonio.getText());
 
-		String quantLinhasBD=String.valueOf(quantLinhas);
-		BigDecimal valorPorAtivo= patrimonio.divide(new BigDecimal(quantLinhasBD));
-		System.out.println(valorPorAtivo);
-	}
 	
 	private void incializaTabela(){
 

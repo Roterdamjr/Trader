@@ -8,21 +8,47 @@ public class Estrategia {
 	BigDecimal stop;
 	BigDecimal gain;
 	BigDecimal gainParcial;
+	BigDecimal quantidadeSugerida;
 	BigDecimal quantidade;
 
 	public Estrategia(){
 		
 	}
+
+
 	public Estrategia(String ativo, BigDecimal start, BigDecimal stop,
-			BigDecimal gain, BigDecimal gainParcial, BigDecimal valor) {
+			BigDecimal gain, BigDecimal gainParcial,
+			BigDecimal quantidadeSugerida, BigDecimal quantidade) {
 		super();
 		this.ativo = ativo;
 		this.start = start;
 		this.stop = stop;
 		this.gain = gain;
 		this.gainParcial = gainParcial;
-		this.quantidade = valor;
+		this.quantidadeSugerida = quantidadeSugerida;
+		this.quantidade = quantidade;
 	}
+
+
+	public BigDecimal getQuantidadeSugerida() {
+		return quantidadeSugerida;
+	}
+
+
+	public void setQuantidadeSugerida(BigDecimal quantidadeSugerida) {
+		this.quantidadeSugerida = quantidadeSugerida;
+	}
+
+
+	public BigDecimal getQuantidade() {
+		return quantidade;
+	}
+
+
+	public void setQuantidade(BigDecimal quantidade) {
+		this.quantidade = quantidade;
+	}
+
 
 	public String getAtivo() {
 		return ativo;
@@ -68,11 +94,11 @@ public class Estrategia {
 
 
 	public BigDecimal getValor() {
-		return quantidade;
+		return quantidadeSugerida;
 	}
 
 	public void setValor(BigDecimal valor) {
-		this.quantidade = valor;
+		this.quantidadeSugerida = valor;
 	}
 
 	@Override
