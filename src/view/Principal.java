@@ -18,6 +18,7 @@ public class Principal extends JFrame{
     private JMenu mnPrincipal;
     private IFrameEstrategias frameEstrategia;
     private IFramePosition framePosition;
+    private JMenuItem mnuEstrategiaValores;
 
  
     public static void main(String args[]){
@@ -75,6 +76,7 @@ public class Principal extends JFrame{
         });
         mnPrincipal.add(mniPosicao);
         
+        
         setVisible(true);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -95,6 +97,9 @@ public class Principal extends JFrame{
              desktopPane.add(frameEstrategia);
          }
 	}
+
+	
+	
 	
 	private void exibeframePosition()	{
         if(framePosition == null){

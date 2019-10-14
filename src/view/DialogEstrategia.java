@@ -178,29 +178,38 @@ public class DialogEstrategia extends JDialog {
 	}
 	
 	private void salvar(){
+		
+		
 		try{
-			Estrategia neg= new Estrategia(
+			/*Estrategia neg= new Estrategia(
 					txtAtivo.getText(),
 					Utilitario.converteStringParaBigDecimal(txtStart.getText()),
 					Utilitario.converteStringParaBigDecimal(txtStop.getText()),
 					Utilitario.converteStringParaBigDecimal(txtGain.getText()),
 					Utilitario.converteStringParaBigDecimal(txtGainParcial.getText()),
-					null,null
+					null,null,null
 					);
 
 			new EstrategiaDao().inserir(neg);
 			
-			lblMsg.setText("Dados salvos");
+			*/
+			
+			Object linha=new Object[]{txtAtivo.getText(), 
+					Utilitario.converteStringParaBigDecimal(txtStart.getText()),
+					Utilitario.converteStringParaBigDecimal(txtStop.getText()),
+					Utilitario.converteStringParaBigDecimal(txtGain.getText()),
+					Utilitario.converteStringParaBigDecimal(txtGainParcial.getText()),
+					null					
+			};
+		
+			//pai.incluirEstrategia(linha);
 			
 			//limpa
 			txtAtivo.setText("");
 			txtStart.setText("");
 			txtStop.setText("");
 			txtGain.setText("");
-			txtGainParcial.setText("");
-			
-			pai.refresh();
-			
+			txtGainParcial.setText("");			
 		}catch(Exception e){
 			lblMsg.setText("Erro ao salvar!");
 		}

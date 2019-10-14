@@ -14,16 +14,17 @@ import java.sql.SQLException;
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.DefaultTableModel;
 
+import model.Estrategia;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
-
-import javax.swing.JTextField;
 
 public class IFrameEstrategias extends JInternalFrame {
 	
@@ -92,45 +93,58 @@ public class IFrameEstrategias extends JInternalFrame {
 			}
 		});
 		
-		JButton btnRefresh = new JButton("Refresh");
-		btnRefresh.addActionListener(new ActionListener() {
+		JButton btnSugerir = new JButton("Sugerir");
+		btnSugerir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				refresh();
+				sugerir();
+
 			}
 			
 		});
-		panel_2.add(btnRefresh);
+		panel_2.add(btnSugerir);
 		panel_2.add(btnExcluir);
 
-		JButton btnNovo = new JButton("Novo");
-		btnNovo.addActionListener(new ActionListener() {
+		JButton btnInserir = new JButton("Inserir");
+		btnInserir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				novo();
+				inserir();
 			}
 		});
-		panel_2.add(btnNovo);
+		panel_2.add(btnInserir);
+		
+		JButton btnSalvar = new JButton("Salvar");
+		btnSalvar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				salvar();
+			}
+		});
+		panel_2.add(btnSalvar);
 
-		refresh();
+		populaTabelaEstrategia();
+		
 	}
 
-	private void novo(){
-		DialogEstrategia dlg= new DialogEstrategia(this);
-		dlg.setVisible(true);
-		populaTabelaEstrategia();
+	private void inserir(){
+		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+		modelo.addRow(new Object[]{null,null,null,null,null,null});
 	} 
 
 	private void excluir(){
-
-		BigDecimal cel=(BigDecimal)tblEstrategia.getValueAt(tblEstrategia.getSelectedRow(),0);
-		
-		int id= Utilitario.converteBigDecimalParaInt(cel);
-		new EstrategiaDao().excluir(id);
-		
-		refresh();
+		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+        if (tblEstrategia.getSelectedRow() >= 0){
+        	modelo.removeRow(tblEstrategia.getSelectedRow());
+        	tblEstrategia.setModel(modelo);
+        }else{
+            JOptionPane.showMessageDialog(null, "Favor selecionar uma linha");
+        }
 	}
 
-	public void refresh(){
-		int nLinhas=populaTabelaEstrategia();
+	public void sugerir(){
+		//retorna o numero de linhas da tablea		
+		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+	
+		int nLinhas=modelo.getRowCount();
+		
 		if(nLinhas>0){
 			BigDecimal quantLinhas=Utilitario.converteIntParaBigDecimal(nLinhas);
 			
@@ -138,15 +152,69 @@ public class IFrameEstrategias extends JInternalFrame {
 		
 			BigDecimal valorPorAtivo= patrimonio.divide(quantLinhas,BigDecimal.ROUND_UP);
 			
-			DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
 			for(int i=0;i<nLinhas;i++){
-				BigDecimal vlCompra=(BigDecimal)modelo.getValueAt(i, 2);
+				//sugere quantidades
+				
+				BigDecimal vlCompra=Utilitario.converteStringParaBigDecimal((String)modelo.getValueAt(i, 2));
 				BigDecimal quantidade=valorPorAtivo.divide(vlCompra,BigDecimal.ROUND_UP);
 				modelo.setValueAt(quantidade,i, 6);
+				
+				//sugere stops
+				BigDecimal start = vlCompra;
+				BigDecimal stop=Utilitario.converteStringParaBigDecimal((String)modelo.getValueAt(i, 3));;
+
+				BigDecimal gain=start.multiply(new BigDecimal("4")).subtract(		
+						stop.multiply(new BigDecimal("3"))
+				);
+				
+				BigDecimal gainParcial=start.multiply(new BigDecimal("2")).subtract(		
+						stop
+				);
+				
+				modelo.setValueAt(gain,i, 4);
+				modelo.setValueAt(gainParcial,i, 5);
 			}
 		}
 	}
 	
+	private void salvar(){
+		new EstrategiaDao().excluir();
+
+		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+
+		for (int i = 0; i <= modelo.getRowCount()-1; i++) {
+/*			
+			String ativo =(String)modelo.getValueAt(i, 1);
+			BigDecimal vlCompra=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2));
+			BigDecimal stop= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3));
+			BigDecimal gain= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4));
+			BigDecimal gainParc=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5));
+			BigDecimal quant= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6));
+						*/
+			//Estrategia est= new Estrategia(ativo, vlCompra,stop,gain,gainParc,quant,null);
+			
+			Estrategia est= new Estrategia(
+					(String)modelo.getValueAt(i, 1),
+					Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)),
+					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3)),
+					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)),
+					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)),
+					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6)),
+					 null
+					 );
+			
+			
+			
+			new EstrategiaDao().inserir(est);
+		}
+		JOptionPane.showMessageDialog(null,
+		        "Dados salvos'" , //mensagem
+		        "Aviso", // titulo da janela 
+		        JOptionPane.INFORMATION_MESSAGE);
+
+		
+	}
+
 	private int populaTabelaEstrategia(){
 		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
 
@@ -170,21 +238,13 @@ public class IFrameEstrategias extends JInternalFrame {
 		//retorna o numero de linhas da tablea		
 		DefaultTableModel modelo2= (DefaultTableModel)tblEstrategia.getModel();
 		return modelo2.getRowCount();
-	}
+	}	
 	
-
 	
 	private void incializaTabela(){
-
-		tblEstrategia = new JTable(){
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
+		tblEstrategia = new JTable();
+		tblEstrategia.setColumnSelectionAllowed(true);
 		tblEstrategia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblEstrategia.setFont(new Font("Tahoma", Font.PLAIN, 11));  
-		
-
-
 	}
 }

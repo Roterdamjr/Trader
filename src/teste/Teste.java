@@ -2,7 +2,6 @@ package teste;
 
 import javax.swing.JInternalFrame;
 
-import view.FrameEstrategia;
 import view.IFrameEstrategias;
 
 public class Teste {

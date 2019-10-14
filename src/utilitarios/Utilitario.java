@@ -95,6 +95,29 @@ public class Utilitario {
 			return converteDataParaSQLData(converteStringParaDate(data));			
 	}
 	
+	
+	public static BigDecimal converteParaBigDecimal(Object obj){
+		
+		
+		switch (obj.getClass().getName()) {
+		case "java.lang.String":
+			/*
+				para os formatos "123.567,89"
+			 */
+			String texto=(String)obj;
+			texto=texto.replace(",", ".");
+			return new BigDecimal(texto);
+			// break;
+		case "java.math.BigDecimal":
+			return (BigDecimal)obj;
+			// break;		    
+		default:
+			return null;
+		}
+
+	}
+	
+	
 	public static BigDecimal converteStringParaBigDecimal(String texto){
 		/*
 		para os formatos "123.567,89"

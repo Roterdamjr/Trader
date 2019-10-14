@@ -26,7 +26,7 @@ public class EstrategiaDao extends DaoBase{
 			stmt.setBigDecimal(3, neg.getStop());
 			stmt.setBigDecimal(4, neg.getGain());
 			stmt.setBigDecimal(5, neg.getGainParcial());
-			stmt.setBigDecimal(6, neg.getValor());
+			stmt.setBigDecimal(6, neg.getQuantidade());
 					
 			stmt.execute();
         } catch (Exception ex) {
@@ -41,12 +41,12 @@ public class EstrategiaDao extends DaoBase{
 		}
     }
     
-    public void excluir(int id){
+    public void excluir(){
     	try {
-			stmt= connection.prepareStatement("delete from tb_Estrategia where sq_Estrategia=?");
-			stmt.setInt(1, id);
+			stmt= connection.prepareStatement("delete from tb_Estrategia");
+	
 			stmt.execute();
-			System.out.println("Excluido "+id);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
