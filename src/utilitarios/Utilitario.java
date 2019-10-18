@@ -382,9 +382,10 @@ public class Utilitario {
             //Now add row to table model with that array of objects as an argument
             tableModel.addRow(row);
         }
-
+        
         //Now add that table model to your table and you are done :D
         table.setModel(tableModel);
+        rs.close();
     }
     
     

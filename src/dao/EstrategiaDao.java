@@ -91,11 +91,20 @@ public class EstrategiaDao extends DaoBase{
     public ResultSet buscarTodosRS(){
 
 		String query = "select sq_Estrategia, ativo,vl_compra,stop,gain, gain_parc,quantidade "
-				+ "from tb_Estrategia ORDER BY ATIVO";		
+				+ " from tb_Estrategia ORDER BY ATIVO";		
 		
 		executaBusca(query);
 
 		return rs;
     }
     
+    public ResultSet buscarTodosRSParaOperacao(){
+
+		String query = "select ativo,quantidade,vl_compra,gain,stop,gain_parc"
+				+ " from tb_Estrategia ORDER BY ATIVO";		
+		
+		executaBusca(query);
+
+		return rs;
+    }
 }

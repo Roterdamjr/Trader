@@ -25,6 +25,7 @@ import javax.swing.table.DefaultTableModel;
 import model.Estrategia;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
+import java.awt.GridLayout;
 
 public class IFrameEstrategias extends JInternalFrame {
 	
@@ -52,9 +53,9 @@ public class IFrameEstrategias extends JInternalFrame {
 	public IFrameEstrategias() {
 		setClosable(true);
 		setTitle("Estrat\u00E9gias");
-		setBounds(30, 30, 450, 300);
+		setBounds(0, 0, 600, 250);
 
-		setSize(500,300);  
+		//setSize(535,380);  
 
 		//setBounds(10,10, 200, 100);
 
@@ -66,13 +67,14 @@ public class IFrameEstrategias extends JInternalFrame {
 
 		JLabel lblNewLabel = new JLabel("Patrim\u00F4nio");
 		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		lblNewLabel.setForeground(Color.RED);
+		lblNewLabel.setForeground(Color.BLACK);
 		panel.add(lblNewLabel);
 		
 		txtPatrimonio = new JTextField();
+		txtPatrimonio.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		txtPatrimonio.setText("30000");
 		panel.add(txtPatrimonio);
-		txtPatrimonio.setColumns(10);
+		txtPatrimonio.setColumns(5);
 
 		JPanel panel_1 = new JPanel();
 		getContentPane().add(panel_1, BorderLayout.CENTER);
@@ -85,13 +87,6 @@ public class IFrameEstrategias extends JInternalFrame {
 
 		JPanel panel_2 = new JPanel();
 		getContentPane().add(panel_2, BorderLayout.SOUTH);
-
-		JButton btnExcluir = new JButton("Excluir");
-		btnExcluir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				excluir();
-			}
-		});
 		
 		JButton btnSugerir = new JButton("Sugerir");
 		btnSugerir.addActionListener(new ActionListener() {
@@ -102,15 +97,6 @@ public class IFrameEstrategias extends JInternalFrame {
 			
 		});
 		panel_2.add(btnSugerir);
-		panel_2.add(btnExcluir);
-
-		JButton btnInserir = new JButton("Inserir");
-		btnInserir.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				inserir();
-			}
-		});
-		panel_2.add(btnInserir);
 		
 		JButton btnSalvar = new JButton("Salvar");
 		btnSalvar.addActionListener(new ActionListener() {
@@ -119,6 +105,30 @@ public class IFrameEstrategias extends JInternalFrame {
 			}
 		});
 		panel_2.add(btnSalvar);
+		
+		JPanel panel_3 = new JPanel();
+		getContentPane().add(panel_3, BorderLayout.WEST);
+				panel_3.setLayout(new GridLayout(8, 1, 0, 0));
+		
+				JButton btnInserir = new JButton("+");
+				btnInserir.setFont(new Font("Tahoma", Font.PLAIN, 28));
+				btnInserir.setForeground(Color.BLUE);
+				panel_3.add(btnInserir);
+				
+						JButton btnExcluir = new JButton("-");
+						btnExcluir.setFont(new Font("Tahoma", Font.PLAIN, 28));
+						btnExcluir.setForeground(Color.BLUE);
+						panel_3.add(btnExcluir);
+						btnExcluir.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent arg0) {
+								excluir();
+							}
+						});
+				btnInserir.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent arg0) {
+						inserir();
+					}
+				});
 
 		populaTabelaEstrategia();
 		
@@ -155,19 +165,19 @@ public class IFrameEstrategias extends JInternalFrame {
 			for(int i=0;i<nLinhas;i++){
 				//sugere quantidades
 				
-				BigDecimal vlCompra=Utilitario.converteStringParaBigDecimal((String)modelo.getValueAt(i, 2));
+				BigDecimal vlCompra=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2));
 				BigDecimal quantidade=valorPorAtivo.divide(vlCompra,BigDecimal.ROUND_UP);
 				modelo.setValueAt(quantidade,i, 6);
 				
 				//sugere stops
 				BigDecimal start = vlCompra;
-				BigDecimal stop=Utilitario.converteStringParaBigDecimal((String)modelo.getValueAt(i, 3));;
+				BigDecimal stop=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3));;
 
 				BigDecimal gain=start.multiply(new BigDecimal("4")).subtract(		
 						stop.multiply(new BigDecimal("3"))
 				);
 				
-				BigDecimal gainParcial=start.multiply(new BigDecimal("2")).subtract(		
+				BigDecimal gainParcial=start.multiply(new BigDecimal("2")).subtract(
 						stop
 				);
 				
@@ -183,16 +193,7 @@ public class IFrameEstrategias extends JInternalFrame {
 		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
 
 		for (int i = 0; i <= modelo.getRowCount()-1; i++) {
-/*			
-			String ativo =(String)modelo.getValueAt(i, 1);
-			BigDecimal vlCompra=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2));
-			BigDecimal stop= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3));
-			BigDecimal gain= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4));
-			BigDecimal gainParc=Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5));
-			BigDecimal quant= Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6));
-						*/
-			//Estrategia est= new Estrategia(ativo, vlCompra,stop,gain,gainParc,quant,null);
-			
+
 			Estrategia est= new Estrategia(
 					(String)modelo.getValueAt(i, 1),
 					Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)),
@@ -201,9 +202,7 @@ public class IFrameEstrategias extends JInternalFrame {
 					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)),
 					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6)),
 					 null
-					 );
-			
-			
+					 );	
 			
 			new EstrategiaDao().inserir(est);
 		}
@@ -212,9 +211,16 @@ public class IFrameEstrategias extends JInternalFrame {
 		        "Aviso", // titulo da janela 
 		        JOptionPane.INFORMATION_MESSAGE);
 
-		
 	}
 
+	
+	private void incializaTabela(){
+		tblEstrategia = new JTable();
+		tblEstrategia.setColumnSelectionAllowed(true);
+		tblEstrategia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		tblEstrategia.setFont(new Font("Tahoma", Font.PLAIN, 16));  
+	}
+	
 	private int populaTabelaEstrategia(){
 		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
 
@@ -240,11 +246,4 @@ public class IFrameEstrategias extends JInternalFrame {
 		return modelo2.getRowCount();
 	}	
 	
-	
-	private void incializaTabela(){
-		tblEstrategia = new JTable();
-		tblEstrategia.setColumnSelectionAllowed(true);
-		tblEstrategia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tblEstrategia.setFont(new Font("Tahoma", Font.PLAIN, 11));  
-	}
 }

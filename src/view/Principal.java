@@ -17,8 +17,7 @@ public class Principal extends JFrame{
     private JMenuBar menuBar;
     private JMenu mnPrincipal;
     private IFrameEstrategias frameEstrategia;
-    private IFramePosition framePosition;
-    private JMenuItem mnuEstrategiaValores;
+    private IFrameOperacao frameOperacao;
 
  
     public static void main(String args[]){
@@ -41,14 +40,9 @@ public class Principal extends JFrame{
         setBackground(Color.GRAY);
  
         int inset = 20;
- /*
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-                   screenSize.width  - inset*2,
 
-                  screenSize.height - inset*2);*/
- 
-        setBounds(20,20,600,400);
+        setBounds(20,20,800,600);
+        
         
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(Color.GRAY);
@@ -68,21 +62,21 @@ public class Principal extends JFrame{
         });
         mnPrincipal.add(mniEstrategia);
         
-        JMenuItem mniPosicao = new JMenuItem("Posi\u00E7\u00E3o");
-        mniPosicao.addActionListener(new ActionListener(){
+        JMenuItem mniOperacao = new JMenuItem("Opera\u00E7\u00E3o");
+        mniOperacao.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-            	exibeframePosition();            	
+            	exibeframeOperacao();            	
             }
         });
-        mnPrincipal.add(mniPosicao);
+        mnPrincipal.add(mniOperacao);
         
         
         setVisible(true);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        exibeframeEstrategia();
-       //exibeframePosition();
+        //exibeframeEstrategia();
+        exibeframeOperacao();
     }
  
 	private void exibeframeEstrategia()	{
@@ -99,17 +93,15 @@ public class Principal extends JFrame{
 	}
 
 	
-	
-	
-	private void exibeframePosition()	{
-        if(framePosition == null){
-            framePosition = new IFramePosition();
-            framePosition.setVisible(true);
-            desktopPane.add(framePosition);
+	private void exibeframeOperacao()	{
+        if(frameOperacao == null){
+            frameOperacao = new IFrameOperacao();
+            frameOperacao.setVisible(true);
+            desktopPane.add(frameOperacao);
         }
-        else if(!framePosition.isVisible()){
-            framePosition.setVisible(true);
-            desktopPane.add(framePosition);
+        else if(!frameOperacao.isVisible()){
+            frameOperacao.setVisible(true);
+            desktopPane.add(frameOperacao);
         }
 	}
 	
