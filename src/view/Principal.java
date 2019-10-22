@@ -17,7 +17,9 @@ public class Principal extends JFrame{
     private JMenuBar menuBar;
     private JMenu mnPrincipal;
     private IFrameEstrategias frameEstrategia;
-    private IFrameOperacao frameOperacao;
+    private IFrameLancarAbertura frameLancarAbertura;
+    private JMenuItem mniLancarExecucao;
+    private IFrameLancarExecucao frameLancarExecucao;
 
  
     public static void main(String args[]){
@@ -62,13 +64,21 @@ public class Principal extends JFrame{
         });
         mnPrincipal.add(mniEstrategia);
         
-        JMenuItem mniOperacao = new JMenuItem("Opera\u00E7\u00E3o");
-        mniOperacao.addActionListener(new ActionListener(){
+        JMenuItem mniAbrirOrdem = new JMenuItem("Lan\u00E7ar Abertura");
+        mniAbrirOrdem.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt){
-            	exibeframeOperacao();            	
+            	exibeframeLancarAbertura();            	
             }
         });
-        mnPrincipal.add(mniOperacao);
+        mnPrincipal.add(mniAbrirOrdem);
+        
+        mniLancarExecucao = new JMenuItem("Lan\u00E7arExecu\u00E7\u00E3o");
+        mniLancarExecucao.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		exibeframeLancarExecucao();
+        	}
+        });
+        mnPrincipal.add(mniLancarExecucao);
         
         
         setVisible(true);
@@ -76,7 +86,8 @@ public class Principal extends JFrame{
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         //exibeframeEstrategia();
-        exibeframeOperacao();
+        //exibeframeLancarAbertura();
+        exibeframeLancarExecucao();
     }
  
 	private void exibeframeEstrategia()	{
@@ -93,18 +104,28 @@ public class Principal extends JFrame{
 	}
 
 	
-	private void exibeframeOperacao()	{
-        if(frameOperacao == null){
-            frameOperacao = new IFrameOperacao();
-            frameOperacao.setVisible(true);
-            desktopPane.add(frameOperacao);
+	private void exibeframeLancarAbertura()	{
+        if(frameLancarAbertura == null){
+        	frameLancarAbertura = new IFrameLancarAbertura();
+        	frameLancarAbertura.setVisible(true);
+            desktopPane.add(frameLancarAbertura);
         }
-        else if(!frameOperacao.isVisible()){
-            frameOperacao.setVisible(true);
-            desktopPane.add(frameOperacao);
+        else if(!frameLancarAbertura.isVisible()){
+        	frameLancarAbertura.setVisible(true);
+            desktopPane.add(frameLancarAbertura);
         }
 	}
 	
-
+	private void exibeframeLancarExecucao()	{
+        if(frameLancarExecucao == null){
+        	frameLancarExecucao = new IFrameLancarExecucao();
+        	frameLancarExecucao.setVisible(true);
+            desktopPane.add(frameLancarExecucao);
+        }
+        else if(!frameLancarExecucao.isVisible()){
+        	frameLancarExecucao.setVisible(true);
+            desktopPane.add(frameLancarExecucao);
+        }
+	}
  
 }

@@ -1,0 +1,51 @@
+--------------------------------------------------------
+--  Arquivo criado - domingo-outubro-20-2019   
+--------------------------------------------------------
+--------------------------------------------------------
+--  DDL for Table TB_OPERACAO
+--------------------------------------------------------
+
+  CREATE TABLE "TRADER"."TB_OPERACAO" 
+   (	"ATIVO" VARCHAR2(20 BYTE), 
+	"VL_COMPRA" NUMBER, 
+	"STOP" NUMBER, 
+	"GAIN" NUMBER, 
+	"GAIN_PARC" NUMBER, 
+	"SQ_OPERACAO" NUMBER, 
+	"QUANTIDADE" NUMBER, 
+	"RISCO" NUMBER, 
+	"VL_CORRENTE" NUMBER, 
+	"DT_COMPRA" DATE, 
+	"SITUACAO" VARCHAR2(1 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1 BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+REM INSERTING into TRADER.TB_OPERACAO
+SET DEFINE OFF;
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('UGPA3','19,43','18,07','23,51','20,79','93','200',null,null,null,'A');
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('VULC3','7,85','7,75','9,5','8,4','94','300',null,null,null,'A');
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('VVAR3','8','7,45','9,65','8,55','95','200',null,null,null,'A');
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('SAPR4','16,77','16,42','18,56','17,34','90','200',null,null,null,'A');
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('SULA11F','48,34','45,56','55,62','50,64','91','40',null,null,null,'A');
+Insert into TRADER.TB_OPERACAO (ATIVO,VL_COMPRA,STOP,GAIN,GAIN_PARC,SQ_OPERACAO,QUANTIDADE,RISCO,VL_CORRENTE,DT_COMPRA,SITUACAO) values ('TIET11','12,3','11,53','14,09','13,07','92','99',null,null,null,'A');
+--------------------------------------------------------
+--  DDL for Trigger TRG_OPERACAO
+--------------------------------------------------------
+
+  CREATE OR REPLACE TRIGGER "TRADER"."TRG_OPERACAO" 
+  BEFORE INSERT ON tb_operacao
+  FOR EACH ROW
+BEGIN
+  SELECT seq_operacao.nextval
+  INTO :new.sq_operacao
+  FROM dual;
+END;
+/
+ALTER TRIGGER "TRADER"."TRG_OPERACAO" ENABLE;
+--------------------------------------------------------
+--  Constraints for Table TB_OPERACAO
+--------------------------------------------------------
+
+  ALTER TABLE "TRADER"."TB_OPERACAO" MODIFY ("SQ_OPERACAO" NOT NULL ENABLE);

@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,9 +16,9 @@ public class EstrategiaDao extends DaoBase{
     	
     }
     
-    public void inserir(Estrategia neg){
+    public void inserir(Estrategia neg) throws Exception{
 
-    	try {
+    	//try {
 			stmt= connection.prepareStatement("insert into tb_Estrategia  "
 					+ "(ativo,vl_compra,stop,gain,gain_parc,quantidade) "
 					+ " values(?,?, ?,?,?,?)");
@@ -29,9 +30,9 @@ public class EstrategiaDao extends DaoBase{
 			stmt.setBigDecimal(6, neg.getQuantidade());
 					
 			stmt.execute();
-        } catch (Exception ex) {
+/*        } catch (Exception ex) {
             ex.printStackTrace();
-        }
+        }*/
             
 		if (stmt != null) {
 			try {
@@ -41,12 +42,10 @@ public class EstrategiaDao extends DaoBase{
 		}
     }
     
-    public void excluir(){
+    public void excluirTodas(){
     	try {
-			stmt= connection.prepareStatement("delete from tb_Estrategia");
-	
+			stmt= connection.prepareStatement("delete from tb_Estrategia");	
 			stmt.execute();
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -59,6 +58,19 @@ public class EstrategiaDao extends DaoBase{
 		}
     }
     
+    public void excluir(int sq_estrategia) throws Exception{
+
+    	stmt= connection.prepareStatement("delete from tb_Estrategia where sq_estrategia=?");	
+    	stmt.setInt(1, sq_estrategia);
+    	stmt.execute();
+
+		if (stmt != null) {
+			try {
+				stmt.close();
+			} catch (SQLException e) {	e.printStackTrace();
+			}
+		}
+    }
     
     public ArrayList<Estrategia> buscarTodos(){
     	
@@ -100,7 +112,7 @@ public class EstrategiaDao extends DaoBase{
     
     public ResultSet buscarTodosRSParaOperacao(){
 
-		String query = "select ativo,quantidade,vl_compra,gain,stop,gain_parc"
+		String query = "select ativo,quantidade,vl_compra,gain,stop,gain_parc, sq_estrategia"
 				+ " from tb_Estrategia ORDER BY ATIVO";		
 		
 		executaBusca(query);

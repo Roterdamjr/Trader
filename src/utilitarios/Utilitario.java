@@ -128,8 +128,7 @@ public class Utilitario {
 		return new BigDecimal(texto);
 	}
 	
-	public static BigDecimal converteIntParaBigDecimal(int valor){
-		
+	public static BigDecimal converteIntParaBigDecimal(int valor){		
 		String quantLinhasBD=String.valueOf(valor);
 		return new BigDecimal(quantLinhasBD);
 	}

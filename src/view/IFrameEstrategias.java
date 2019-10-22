@@ -53,7 +53,7 @@ public class IFrameEstrategias extends JInternalFrame {
 	public IFrameEstrategias() {
 		setClosable(true);
 		setTitle("Estrat\u00E9gias");
-		setBounds(0, 0, 600, 250);
+		setBounds(0, 0, 600, 300);
 
 		//setSize(535,380);  
 
@@ -188,29 +188,33 @@ public class IFrameEstrategias extends JInternalFrame {
 	}
 	
 	private void salvar(){
-		new EstrategiaDao().excluir();
-
-		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
-
-		for (int i = 0; i <= modelo.getRowCount()-1; i++) {
-
-			Estrategia est= new Estrategia(
-					(String)modelo.getValueAt(i, 1),
-					Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)),
-					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3)),
-					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)),
-					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)),
-					 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6)),
-					 null
-					 );	
+		try{ 
+			new EstrategiaDao().excluirTodas();
+	
+			DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+	
+			for (int i = 0; i <= modelo.getRowCount()-1; i++) {
+	
+				Estrategia est= new Estrategia(
+						(String)modelo.getValueAt(i, 1),
+						Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)),
+						 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3)),
+						 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)),
+						 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)),
+						 Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 6)),
+						 null
+						 );	
+				
+				new EstrategiaDao().inserir(est);
+			}
+			JOptionPane.showMessageDialog(null, "Dados salvos'" , "Aviso", 
+			        JOptionPane.INFORMATION_MESSAGE);
 			
-			new EstrategiaDao().inserir(est);
-		}
-		JOptionPane.showMessageDialog(null,
-		        "Dados salvos'" , //mensagem
-		        "Aviso", // titulo da janela 
-		        JOptionPane.INFORMATION_MESSAGE);
-
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao salvar'" , "Aviso", 
+			        JOptionPane.INFORMATION_MESSAGE);
+        }
 	}
 
 	

@@ -1,6 +1,7 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -8,34 +9,31 @@ import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.ParseException;
+import java.util.ArrayList;
 
-import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.MaskFormatter;
 
+import model.Operacao;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
 import dao.OperacaoDao;
 
-import java.awt.FlowLayout;
-
-import javax.swing.JLabel;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
-
-public class IFrameOperacao extends JInternalFrame {
+public class IFrameLancarAbertura extends JInternalFrame {
 	private JTable tblEstrategia;
 	private JTable tblOperacao;
+	private ArrayList<BigDecimal> sqEstrategiasparaExcluir= new ArrayList<BigDecimal>();
 	/**
 	 * Launch the application.
 	 */
@@ -43,7 +41,7 @@ public class IFrameOperacao extends JInternalFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					IFrameOperacao frame = new IFrameOperacao();
+					IFrameLancarAbertura frame = new IFrameLancarAbertura();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -55,8 +53,8 @@ public class IFrameOperacao extends JInternalFrame {
 	/**
 	 * Create the frame.
 	 */
-	public IFrameOperacao() {
-		setTitle("Opera\u00E7\u00F5es");
+	public IFrameLancarAbertura() {
+		setTitle("Lan\u00E7ar Abertura");
 		setClosable(true);
 		setBounds(0, 0, 603, 479);
 		
@@ -95,7 +93,7 @@ public class IFrameOperacao extends JInternalFrame {
          JPanel panel_5 = new JPanel();
          panel_3.add(panel_5, BorderLayout.SOUTH);
          
-         JButton btnIncluirOperacao = new JButton("Incluir Operacao");
+         JButton btnIncluirOperacao = new JButton("Abrir Ordem");
          btnIncluirOperacao.addActionListener(new ActionListener() {
          	public void actionPerformed(ActionEvent arg0) {
          		incluirOperacao();
@@ -108,6 +106,11 @@ public class IFrameOperacao extends JInternalFrame {
          
          JPanel panel_8 = new JPanel();
          panel_3.add(panel_8, BorderLayout.NORTH);
+         
+         JLabel lblNewLabel = new JLabel("Estrategias");
+         lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+         lblNewLabel.setForeground(Color.BLUE);
+         panel_8.add(lblNewLabel);
          
          JPanel panel_7 = new JPanel();
          panel_3.add(panel_7, BorderLayout.EAST);
@@ -129,6 +132,11 @@ public class IFrameOperacao extends JInternalFrame {
          JPanel panel_9 = new JPanel();
          panel_4.add(panel_9, BorderLayout.NORTH);
          
+         JLabel lblNewLabel_1 = new JLabel("Ordens Abertas");
+         lblNewLabel_1.setForeground(Color.BLUE);
+         lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 14));
+         panel_9.add(lblNewLabel_1);
+         
          JPanel panel_10 = new JPanel();
          panel_4.add(panel_10, BorderLayout.SOUTH);
          
@@ -144,9 +152,26 @@ public class IFrameOperacao extends JInternalFrame {
          JButton button_1 = new JButton("Salvar");
          button_1.addActionListener(new ActionListener() {
          	public void actionPerformed(ActionEvent arg0) {
-         		//salvar();
+         		salvar();
          	}
          });
+         
+         JButton btnSair = new JButton("Sair");
+         btnSair.addActionListener(new ActionListener() {
+         	public void actionPerformed(ActionEvent arg0) {
+         		dispose();
+         	}
+         });
+         
+         JButton btnRefresh = new JButton("Refresh");
+         panel_2.add(btnRefresh);
+         btnRefresh.addActionListener(new ActionListener() {
+         	public void actionPerformed(ActionEvent arg0) {
+         		populaTabelaEstrategia();
+         		populaTabelaOperacao();
+         	}
+         });
+         panel_2.add(btnSair);
          panel_2.add(button_1);
          
          
@@ -156,25 +181,86 @@ public class IFrameOperacao extends JInternalFrame {
 	}
 
 	private void incluirOperacao(){
+		
 		DefaultTableModel modeloEstrategia= (DefaultTableModel)tblEstrategia.getModel();
 		DefaultTableModel modeloOperacao= (DefaultTableModel)tblOperacao.getModel();
-		//modeloEstrategia.
+		
+		//insere a operação 
 		int numLinha=tblEstrategia.getSelectedRow();
 
 		Object[] linha= new Object[]{
 				modeloEstrategia.getValueAt(numLinha, 0),
-				null,
 				modeloEstrategia.getValueAt(numLinha, 2),
 				modeloEstrategia.getValueAt(numLinha, 4),
 				modeloEstrategia.getValueAt(numLinha, 5),
 				modeloEstrategia.getValueAt(numLinha, 1),
 				modeloEstrategia.getValueAt(numLinha, 3)
-
 		};
 
 		modeloOperacao.insertRow(modeloOperacao.getRowCount(),linha);
+		
+		//marca estrategia para exclusão no BD
+		BigDecimal bd = (BigDecimal)modeloEstrategia.getValueAt(numLinha, 6);		
+		sqEstrategiasparaExcluir.add(bd);
+		
+		//exclui estrategia da table
+		modeloEstrategia.removeRow(numLinha);
+	}
+	
+	private void salvar(){
+		
+		try{ 				
+			// inclui operações
+			DefaultTableModel modelo= (DefaultTableModel)tblOperacao.getModel();
+	
+			for (int i = 0; i <= modelo.getRowCount()-1; i++) {
+				if(modelo.getValueAt(i, 6)==null){ 
+					Operacao est= new Operacao();
+					est.setAtivo((String)modelo.getValueAt(i, 0));
+					est.setStart(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 1)));
+					est.setStop(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)));
+					est.setGainParcial(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3)));
+					est.setQuantidade(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)));
+					est.setGain(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)));
+
+					new OperacaoDao().inserir(est);
+				}
+			}
+			
+			// exclui Estrategias
+			for(BigDecimal obj:sqEstrategiasparaExcluir){
+				int sq_estrategia= Utilitario.converteBigDecimalParaInt(obj);
+				new EstrategiaDao().excluir(sq_estrategia);
+			}
+		
+			//refresh na tabela para preencher o _sq_opreracao
+			populaTabelaOperacao();
+			
+			JOptionPane.showMessageDialog(null, "Dados salvos" , "Aviso", 
+			        JOptionPane.INFORMATION_MESSAGE);
+			
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Erro ao salvar" , "Aviso", 
+			        JOptionPane.INFORMATION_MESSAGE);
+        }
 	}
     
+/*	private boolean dadosValidos(){
+
+		DefaultTableModel modelo= (DefaultTableModel)tblOperacao.getModel();
+		
+		for (int i = 0; i <= modelo.getRowCount()-1; i++) {
+			if(modelo.getValueAt(i, 1)==null){
+				JOptionPane.showMessageDialog(null, "Valor corrente nulo" , "Aviso", 
+				        JOptionPane.INFORMATION_MESSAGE);
+				return false;
+			}
+		}
+		
+		return true;
+	}*/
+	
 	private void incializaTabelaEstrategia(){
 		tblEstrategia = new JTable(){
 			public boolean isCellEditable(int row, int column) {
@@ -185,14 +271,19 @@ public class IFrameOperacao extends JInternalFrame {
 		tblEstrategia.setColumnSelectionAllowed(false);
 		tblEstrategia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblEstrategia.setFont(new Font("Tahoma", Font.PLAIN, 16));  
+		
+
 	}
 
 	private void incializaTabelaOperacao(){
+		//editavel a o valor corrente
 		tblOperacao = new JTable(){
 			public boolean isCellEditable(int row, int column) {
-				return column==2;
+				return column==1;
 			}
 		};
+		tblOperacao.setRowSelectionAllowed(false);
+
 	}
 	
 	private int populaTabelaEstrategia(){
@@ -211,9 +302,18 @@ public class IFrameOperacao extends JInternalFrame {
 			e.printStackTrace();
 		}
 		
+		
+		//int ret =popula(tblEstrategia, new EstrategiaDao().buscarTodosRSParaOperacao());
+		
+		
+		//esconde colunas com sq
+		tblEstrategia.getColumnModel().getColumn(6).setMinWidth(0);
+		tblEstrategia.getColumnModel().getColumn(6).setMaxWidth(0);
+		
 		//retorna o numero de linhas da tablea		
 		DefaultTableModel modelo2= (DefaultTableModel)tblEstrategia.getModel();
 		return modelo2.getRowCount();
+		//return ret;
 	}	
 
 	private int populaTabelaOperacao(){
@@ -232,8 +332,32 @@ public class IFrameOperacao extends JInternalFrame {
 			e.printStackTrace();
 		}
 		
+		//esconde colunas com sq
+		tblOperacao.getColumnModel().getColumn(6).setMinWidth(0);
+		tblOperacao.getColumnModel().getColumn(6).setMaxWidth(0);
+		
 		//retorna o numero de linhas da tablea		
 		DefaultTableModel modelo2= (DefaultTableModel)tblOperacao.getModel();
 		return modelo2.getRowCount();
 	}	
+	
+	private int popula(JTable table, ResultSet rs){
+		DefaultTableModel modelo= (DefaultTableModel)table.getModel();
+
+		//remove linhas 
+		int rowCount = modelo.getRowCount();
+		for (int i = rowCount - 1; i >= 0; i--) {
+			modelo.removeRow(i);
+		}
+
+		try {
+			Utilitario.resultSetToTableModel(rs,tblEstrategia);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		//retorna o numero de linhas da tablea		
+		DefaultTableModel modelo2= (DefaultTableModel)table.getModel();
+		return modelo2.getRowCount();
+	}
 }
