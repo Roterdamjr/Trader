@@ -96,6 +96,15 @@ public class IFrameEstrategias extends JInternalFrame {
 			}
 			
 		});
+		
+		JButton btnRefresh = new JButton("Refresh");
+		btnRefresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				populaTabelaEstrategia();
+			}
+			
+		});
+		panel_2.add(btnRefresh);
 		panel_2.add(btnSugerir);
 		
 		JButton btnSalvar = new JButton("Salvar");

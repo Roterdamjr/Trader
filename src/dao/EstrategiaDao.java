@@ -64,6 +64,7 @@ public class EstrategiaDao extends DaoBase{
     	stmt.setInt(1, sq_estrategia);
     	stmt.execute();
 
+    	System.out.println("Excluir: "+ sq_estrategia);
 		if (stmt != null) {
 			try {
 				stmt.close();
@@ -90,8 +91,7 @@ public class EstrategiaDao extends DaoBase{
 				obj.setStart(rs.getBigDecimal(4));
 				obj.setStop(rs.getBigDecimal(5));
 				lista.add(obj);
-				
-				System.out.println(obj.toString());
+
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

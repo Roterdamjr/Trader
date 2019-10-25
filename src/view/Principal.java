@@ -43,7 +43,7 @@ public class Principal extends JFrame{
  
         int inset = 20;
 
-        setBounds(20,20,800,600);
+        setBounds(20,20,800,700);
         
         
         desktopPane = new JDesktopPane();

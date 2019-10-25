@@ -24,15 +24,18 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import model.Operacao;
+import utilitarios.Tabela;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
 import dao.OperacaoDao;
+
 import javax.swing.JLabel;
+import javax.swing.JTextField;
 
 public class IFrameLancarExecucao extends JInternalFrame {
-	private JTable tblEstrategia;
+	
 	private JTable tblAbertas;
-	private ArrayList<BigDecimal> sqParaExcluir= new ArrayList<BigDecimal>();
+	//private ArrayList linhasParaUpdate= new ArrayList();
 	private JTable tblExecutadas;
 	/**
 	 * Launch the application.
@@ -54,9 +57,9 @@ public class IFrameLancarExecucao extends JInternalFrame {
 	 * Create the frame.
 	 */
 	public IFrameLancarExecucao() {
-		setTitle("Ln\u00E7ar Execu\u00E7\u00E3o");
+		setTitle("Lan\u00E7ar Execu\u00E7\u00E3o");
 		setClosable(true);
-		setBounds(0, 0, 603, 479);
+		setBounds(0, 0, 603, 600);
 		
 		 JPanel panel = new JPanel();
          panel.setBackground(SystemColor.controlHighlight);  
@@ -71,25 +74,16 @@ public class IFrameLancarExecucao extends JInternalFrame {
          JPanel panel_3 = new JPanel();
          panel_3.setBorder(new LineBorder(Color.BLUE));
          panel_1.add(panel_3);
-         
-         tblEstrategia = new JTable();
-         tblEstrategia.setModel(new DefaultTableModel(
-         	new Object[][] {
-         		{null, null, null, null, null},
-         		{null, null, null, null, null},
-         		{null, null, null, null, null},
-         	},
-         	new String[] {
-         		"New column", "New column", "New column", "New column", "New column"
-         	}
-         ));
-         
-         incializaTabelaAbertas();
-         
+ 
          panel_3.setLayout(new BorderLayout(5, 5));
+         
+         /*
+         tabela
+         */
+         incializaTabelaAbertas();
          JScrollPane scrollPane = new JScrollPane(tblAbertas);
          panel_3.add(scrollPane);
-         
+        /*   */
          JPanel panel_5 = new JPanel();
          panel_3.add(panel_5, BorderLayout.SOUTH);
          
@@ -118,11 +112,15 @@ public class IFrameLancarExecucao extends JInternalFrame {
          JPanel panel_4 = new JPanel();
          panel_1.add(panel_4);
          panel_4.setLayout(new BorderLayout(0, 0));
-         
+         /*
+         tabela
+         */
          incializaTabelaExecutadas();
+         tblExecutadas = new JTable();         
+         tblExecutadas.setFont(new Font("Tahoma", Font.PLAIN, 16));
          JScrollPane scrollPane_1 = new JScrollPane(tblExecutadas);
          panel_4.add(scrollPane_1, BorderLayout.CENTER);
-  
+         /*   */
          
          JPanel panel_9 = new JPanel();
          panel_4.add(panel_9, BorderLayout.NORTH);
@@ -166,73 +164,69 @@ public class IFrameLancarExecucao extends JInternalFrame {
          btnRefresh.addActionListener(new ActionListener() {
          	public void actionPerformed(ActionEvent arg0) {         	
          		populaTabelaAbertas();
+         		populaTabelaExecucao();
          	}
          });
          panel_2.add(btnSair);
          panel_2.add(button_1);
-         
-         
+   
          populaTabelaAbertas();
          populaTabelaExecucao();
-         
+
 	}
 
 	private void incluirOrdem(){
 		
 		DefaultTableModel modeloAbertas= (DefaultTableModel)tblAbertas.getModel();
-		DefaultTableModel modeloExecucao= (DefaultTableModel)tblAbertas.getModel();
+		DefaultTableModel modeloExecucao= (DefaultTableModel)tblExecutadas.getModel();
 		
 		//insere a operação 
 		int numLinha=tblAbertas.getSelectedRow();
 
 		Object[] linha= new Object[]{
+				Utilitario.buscaDataAtual(),
 				modeloAbertas.getValueAt(numLinha, 0),
 				modeloAbertas.getValueAt(numLinha, 1),
 				modeloAbertas.getValueAt(numLinha, 2),
 				modeloAbertas.getValueAt(numLinha, 3),
 				modeloAbertas.getValueAt(numLinha, 4),
 				modeloAbertas.getValueAt(numLinha, 5),
-				modeloAbertas.getValueAt(numLinha, 6)
+				modeloAbertas.getValueAt(numLinha, 6),
+				modeloAbertas.getValueAt(numLinha, 7)
 		};
-
+		
+		//modeloExecucao.insertRow(0,new Object[]{});
 		modeloExecucao.insertRow(modeloExecucao.getRowCount(),linha);
 				
-		//marca estrategia para exclusão no BD
-		BigDecimal bd = (BigDecimal)modeloAbertas.getValueAt(numLinha, 7);		
-		sqParaExcluir.add(bd);
+		//marca linha para update no BD	
+		//linhasParaUpdate.add(numLinha);
 		
-		//exclui estrategia da table
+		//exclui linha da table origem
 		modeloAbertas.removeRow(numLinha);
 	}
 	
 	private void salvar(){
 		
-	/*	try{ 				
-			// inclui operações
-			DefaultTableModel modelo= (DefaultTableModel)tblOperacao.getModel();
+		try{ 				
+			
+			DefaultTableModel modelo= (DefaultTableModel)tblExecutadas.getModel();
 	
 			for (int i = 0; i <= modelo.getRowCount()-1; i++) {
-				if(modelo.getValueAt(i, 6)==null){ 
-					Operacao est= new Operacao();
-					est.setAtivo((String)modelo.getValueAt(i, 0));
-					est.setStart(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 1)));
-					est.setStop(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 2)));
-					est.setGainParcial(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 3)));
-					est.setQuantidade(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)));
-					est.setGain(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)));
+				if(modelo.getValueAt(i, 8).equals("A")){					
+					// atualiza operações					
+					BigDecimal bd = (BigDecimal)modelo.getValueAt(i, 7);
+					int sq_estrategia= Utilitario.converteBigDecimalParaInt(bd);
+					String DataDeExcucao=(String)modelo.getValueAt(i, 0);				
+					
+					new OperacaoDao().updateParaExecutada(sq_estrategia,DataDeExcucao);				
 
-					new OperacaoDao().inserir(est);
+					// EXCLUI ESTRATEGIAS
+					new EstrategiaDao().excluir(sq_estrategia);
 				}
 			}
 			
-			// exclui Estrategias
-			for(BigDecimal obj:sqEstrategiasparaExcluir){
-				int sq_estrategia= Utilitario.converteBigDecimalParaInt(obj);
-				new EstrategiaDao().excluir(sq_estrategia);
-			}
-		
-			//refresh na tabela para preencher o _sq_opreracao
-			populaTabelaOperacao();
+			//refresh na tabela para preencher o sq_opreracao
+			populaTabelaExecucao();
 			
 			JOptionPane.showMessageDialog(null, "Dados salvos" , "Aviso", 
 			        JOptionPane.INFORMATION_MESSAGE);
@@ -241,7 +235,7 @@ public class IFrameLancarExecucao extends JInternalFrame {
             ex.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao salvar" , "Aviso", 
 			        JOptionPane.INFORMATION_MESSAGE);
-        }*/
+        }
 	}
     
 /*	private boolean dadosValidos(){
@@ -272,46 +266,41 @@ public class IFrameLancarExecucao extends JInternalFrame {
 	}
 
 	private void incializaTabelaExecutadas(){
-		tblExecutadas = new JTable(){
-			public boolean isCellEditable(int row, int column) {
-				return false;
-			}
-		};
-
 		tblAbertas.setColumnSelectionAllowed(false);
 		tblAbertas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblAbertas.setFont(new Font("Tahoma", Font.PLAIN, 16));  
 	}
 	
 	private int populaTabelaAbertas(){
-		DefaultTableModel modelo= (DefaultTableModel)tblAbertas.getModel();
-
-		//remove linhas 
-		int rowCount = modelo.getRowCount();
-		for (int i = rowCount - 1; i >= 0; i--) {
-			modelo.removeRow(i);
-		}
-
+		int ret=0;
+		
 		try {
-			Utilitario.resultSetToTableModel(
-					new OperacaoDao().buscarTodosRS(),
-					tblAbertas);
-		} catch (SQLException e) {
+			ret= Tabela.popula(tblAbertas, 
+					new OperacaoDao().buscarAbertas(),
+					6);	
+			//esconde colunas com situação
+/*			tblAbertas.getColumnModel().getColumn(7).setMinWidth(0);
+			tblAbertas.getColumnModel().getColumn(7).setMaxWidth(0);*/
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		
-		//esconde colunas com sq
-		tblAbertas.getColumnModel().getColumn(6).setMinWidth(0);
-		tblAbertas.getColumnModel().getColumn(6).setMaxWidth(0);
-		
-		//retorna o numero de linhas da tablea		
-		DefaultTableModel modelo2= (DefaultTableModel)tblAbertas.getModel();
-		return modelo2.getRowCount();
+		return ret;
 	}	
 
 	private int populaTabelaExecucao(){
-		return 0;
+		int ret=0;
+		
+		try {
+			ret= Tabela.popula(tblExecutadas, 
+					new OperacaoDao().buscarExecutadas(),
+					7);
+			//esconde colunas com situação
+/*			tblExecutadas.getColumnModel().getColumn(8).setMinWidth(0);
+			tblExecutadas.getColumnModel().getColumn(8).setMaxWidth(0);*/
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ret;
 	}
 
 }

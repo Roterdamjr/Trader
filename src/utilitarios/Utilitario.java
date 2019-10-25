@@ -32,7 +32,7 @@ public class Utilitario {
 	   public static void main(String[] args) {
 	    	String texto="4,4";
 			
-			System.out.println(converteStringParaFloat(texto));
+			//System.out.println(converteStringParaFloat(texto));
 	    }
 	
 	
@@ -83,7 +83,7 @@ public class Utilitario {
 	public static double converteObjectParaDouble(Object obj){
 		
 		String s=(String)obj;
-		System.out.println("salvando  "+ s);
+		//System.out.println("salvando  "+ s);
 		return Double.parseDouble(s);	
 	}
 
@@ -94,6 +94,20 @@ public class Utilitario {
 		else
 			return converteDataParaSQLData(converteStringParaDate(data));			
 	}
+	
+	public static String converteSQLDataParaString(java.sql.Date data){
+		SimpleDateFormat in= new SimpleDateFormat("yyyy-MM-dd");
+		SimpleDateFormat out = new SimpleDateFormat("dd/MM/yyyy");
+
+		try {
+			return out.format(in.parse(data.toString()));
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	
 	
 	
 	public static BigDecimal converteParaBigDecimal(Object obj){
@@ -159,7 +173,7 @@ public class Utilitario {
 		
 		String texto=String.valueOf(numero);
 		texto=texto.replace(".", ",");		
-		System.out.println("converteeno "+texto);
+		//System.out.println("converteeno "+texto);
 		return texto; 
 	}
 	
@@ -281,7 +295,7 @@ public class Utilitario {
 				
 		try{
 			BigDecimal valor=null;
-			System.out.println(textoFormatado);
+			//System.out.println(textoFormatado);
 			valor =new BigDecimal(textoFormatado);			
 		}catch(Exception e){
 			isValido=false;
@@ -298,7 +312,6 @@ public class Utilitario {
 				Object[] row = new Object[columns];
 				for (int i = 1; i <= columns; i++) {
 					row[i - 1] = rs.getObject(i);
-					 //System.out.println("inserindo "+ row.toString());
 				}
 				((DefaultTableModel) tabela.getModel()).insertRow(
 						rs.getRow() - 1, row);
@@ -307,10 +320,10 @@ public class Utilitario {
 			e.printStackTrace();
 		}
 	}
-
-	public static String buscaDataAtual(){
-		DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"); 
-		return dateFormat.format(new Date());				 
+	
+	public static String buscaDataAtual(){	
+    	Date dataCorrente = Calendar.getInstance().getTime();
+    	return new SimpleDateFormat("dd/MM/yyyy").format(dataCorrente);
 	}
 	
 	public static String lerTextoDeArquivo(String arquivo){
@@ -384,6 +397,7 @@ public class Utilitario {
         
         //Now add that table model to your table and you are done :D
         table.setModel(tableModel);
+        
         rs.close();
     }
     

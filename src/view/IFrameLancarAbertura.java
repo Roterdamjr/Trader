@@ -26,6 +26,7 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import model.Operacao;
+import utilitarios.Tabela;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
 import dao.OperacaoDao;
@@ -199,11 +200,11 @@ public class IFrameLancarAbertura extends JInternalFrame {
 
 		modeloOperacao.insertRow(modeloOperacao.getRowCount(),linha);
 		
-		//marca estrategia para exclusão no BD
+		//marca linha para exclusão no BD
 		BigDecimal bd = (BigDecimal)modeloEstrategia.getValueAt(numLinha, 6);		
 		sqEstrategiasparaExcluir.add(bd);
 		
-		//exclui estrategia da table
+		//exclui estrategia da table origem
 		modeloEstrategia.removeRow(numLinha);
 	}
 	
@@ -223,7 +224,7 @@ public class IFrameLancarAbertura extends JInternalFrame {
 					est.setQuantidade(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 4)));
 					est.setGain(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 5)));
 
-					new OperacaoDao().inserir(est);
+					new OperacaoDao().inserirAberta(est);
 				}
 			}
 			
@@ -271,8 +272,6 @@ public class IFrameLancarAbertura extends JInternalFrame {
 		tblEstrategia.setColumnSelectionAllowed(false);
 		tblEstrategia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		tblEstrategia.setFont(new Font("Tahoma", Font.PLAIN, 16));  
-		
-
 	}
 
 	private void incializaTabelaOperacao(){
@@ -283,81 +282,34 @@ public class IFrameLancarAbertura extends JInternalFrame {
 			}
 		};
 		tblOperacao.setRowSelectionAllowed(false);
-
 	}
 	
 	private int populaTabelaEstrategia(){
-		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
-
-		//remove linhas 
-		int rowCount = modelo.getRowCount();
-		for (int i = rowCount - 1; i >= 0; i--) {
-			modelo.removeRow(i);
-		}
-
-		try {
-			Utilitario.resultSetToTableModel(
-					new EstrategiaDao().buscarTodosRSParaOperacao(),tblEstrategia);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+				
+		int ret =Tabela.popula(tblEstrategia, 
+				new EstrategiaDao().buscarTodosRSParaOperacao(),
+				6);
 		
-		
-		//int ret =popula(tblEstrategia, new EstrategiaDao().buscarTodosRSParaOperacao());
-		
-		
-		//esconde colunas com sq
-		tblEstrategia.getColumnModel().getColumn(6).setMinWidth(0);
-		tblEstrategia.getColumnModel().getColumn(6).setMaxWidth(0);
-		
-		//retorna o numero de linhas da tablea		
-		DefaultTableModel modelo2= (DefaultTableModel)tblEstrategia.getModel();
-		return modelo2.getRowCount();
-		//return ret;
+		return ret;
 	}	
 
 	private int populaTabelaOperacao(){
-		DefaultTableModel modelo= (DefaultTableModel)tblOperacao.getModel();
-
-		//remove linhas 
-		int rowCount = modelo.getRowCount();
-		for (int i = rowCount - 1; i >= 0; i--) {
-			modelo.removeRow(i);
-		}
-
+		int ret=0;
+		
 		try {
-			Utilitario.resultSetToTableModel(
-					new OperacaoDao().buscarTodosRS(),tblOperacao);
-		} catch (SQLException e) {
+			ret = Tabela.popula(tblOperacao, 
+					new OperacaoDao().buscarAbertas(),
+					6);
+			//esconde colunas com situação
+			tblOperacao.getColumnModel().getColumn(7).setMinWidth(0);
+			tblOperacao.getColumnModel().getColumn(7).setMaxWidth(0);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		//esconde colunas com sq
-		tblOperacao.getColumnModel().getColumn(6).setMinWidth(0);
-		tblOperacao.getColumnModel().getColumn(6).setMaxWidth(0);
-		
-		//retorna o numero de linhas da tablea		
-		DefaultTableModel modelo2= (DefaultTableModel)tblOperacao.getModel();
-		return modelo2.getRowCount();
+		return ret;
 	}	
 	
-	private int popula(JTable table, ResultSet rs){
-		DefaultTableModel modelo= (DefaultTableModel)table.getModel();
 
-		//remove linhas 
-		int rowCount = modelo.getRowCount();
-		for (int i = rowCount - 1; i >= 0; i--) {
-			modelo.removeRow(i);
-		}
-
-		try {
-			Utilitario.resultSetToTableModel(rs,tblEstrategia);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		//retorna o numero de linhas da tablea		
-		DefaultTableModel modelo2= (DefaultTableModel)table.getModel();
-		return modelo2.getRowCount();
-	}
 }
