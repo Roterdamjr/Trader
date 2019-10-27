@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -14,7 +15,7 @@ public class OperacaoDao extends DaoBase{
 
     public static void main(String[] args) {
     	try {
-			new OperacaoDao().updateParaExecutada(106,"01/10/2019"); 
+			new OperacaoDao().updateParaExecutada(106,"01/10/2019",new BigDecimal("12")); 
 System.out.println("Feito");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -107,15 +108,17 @@ System.out.println("Feito");
 		
     }
         
-    public void updateParaExecutada(int sqOperacao, String dataCompra) throws Exception{
+    public void updateParaExecutada(int sqOperacao, String dataCompra, BigDecimal valorCorrente) 
+    		throws Exception{
        	stmt= getConnection().prepareStatement(
        			//"update tb_operacao  set situacao='E' where sq_operacao=?");
-       	"update tb_operacao  set situacao='E' ,dt_compra=? where sq_operacao=?"
+       	"update tb_operacao  set situacao='E' ,dt_compra=? ,vl_corrente=? where sq_operacao=?"
 
        	);
        	
        	stmt.setDate(1, Utilitario.converteStringParaSQLData(dataCompra));
-       	stmt.setInt(2,sqOperacao);
+       	stmt.setBigDecimal(2, valorCorrente);
+       	stmt.setInt(3,sqOperacao);
 
     	stmt.execute();
     	
@@ -169,7 +172,7 @@ System.out.println("Feito");
     public ResultSet buscarExecutadas() throws Exception{
 
     	String query= "select  dt_compra, ativo, vl_compra,stop,gain_parc,"
-    			+ " quantidade,gain,sq_operacao,situacao"
+    			+ " quantidade,gain,sq_operacao,situacao, vl_corrente"
 				+ " from tb_operacao  where situacao='E' ORDER BY ATIVO";		
 
     	stmt= getConnection().prepareStatement(query);
@@ -178,4 +181,17 @@ System.out.println("Feito");
 		return rs;
     }
 
+    public ResultSet buscarExecutadasParaAcompanhar() throws Exception{
+
+    	String query=  "select  ativo,quantidade, vl_compra,vl_corrente, "
+    			+ " (vl_corrente-stop)/(gain_parc-stop)*100 andamento, stop,gain_parc, "
+    			+ " gain,sq_operacao from tb_operacao   "
+    			+ " where situacao='E' ORDER BY ATIVO";
+	
+
+    	stmt= getConnection().prepareStatement(query);
+    	rs=stmt.executeQuery();
+		
+		return rs;
+    }
 }

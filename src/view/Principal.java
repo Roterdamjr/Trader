@@ -20,7 +20,8 @@ public class Principal extends JFrame{
     private IFrameLancarAbertura frameLancarAbertura;
     private JMenuItem mniLancarExecucao;
     private IFrameLancarExecucao frameLancarExecucao;
-
+    private IFrameAcompanharExecucao frameAcompanharExecucao;
+    private JMenuItem mniAcompanharExecucao;
  
     public static void main(String args[]){
 		EventQueue.invokeLater(new Runnable() {
@@ -43,9 +44,8 @@ public class Principal extends JFrame{
  
         int inset = 20;
 
-        setBounds(20,20,800,700);
-        
-        
+        setBounds(20,20,1000,700);
+                
         desktopPane = new JDesktopPane();
         desktopPane.setBackground(Color.GRAY);
         setContentPane(desktopPane);                                
@@ -80,6 +80,14 @@ public class Principal extends JFrame{
         });
         mnPrincipal.add(mniLancarExecucao);
         
+        mniAcompanharExecucao = new JMenuItem("Acompanhar Execucao");
+        mniAcompanharExecucao.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		exibeframeAcompanharExecucao();
+        	}
+        });
+        mnPrincipal.add(mniAcompanharExecucao);
+        
         
         setVisible(true);
         setResizable(true);
@@ -87,7 +95,8 @@ public class Principal extends JFrame{
         
         //exibeframeEstrategia();
         //exibeframeLancarAbertura();
-        exibeframeLancarExecucao();
+        //exibeframeLancarExecucao();
+        exibeframeAcompanharExecucao();
     }
  
 	private void exibeframeEstrategia()	{
@@ -128,4 +137,15 @@ public class Principal extends JFrame{
         }
 	}
  
+	private void exibeframeAcompanharExecucao()	{
+        if(frameAcompanharExecucao == null){
+        	frameAcompanharExecucao = new IFrameAcompanharExecucao();
+        	frameAcompanharExecucao.setVisible(true);
+            desktopPane.add(frameAcompanharExecucao);
+        }
+        else if(!frameAcompanharExecucao.isVisible()){
+        	frameAcompanharExecucao.setVisible(true);
+            desktopPane.add(frameAcompanharExecucao);
+        }
+	}
 }

@@ -288,7 +288,7 @@ public class IFrameLancarAbertura extends JInternalFrame {
 				
 		int ret =Tabela.popula(tblEstrategia, 
 				new EstrategiaDao().buscarTodosRSParaOperacao(),
-				6);
+				new int[]{6});
 		
 		return ret;
 	}	
@@ -299,12 +299,8 @@ public class IFrameLancarAbertura extends JInternalFrame {
 		try {
 			ret = Tabela.popula(tblOperacao, 
 					new OperacaoDao().buscarAbertas(),
-					6);
-			//esconde colunas com situação
-			tblOperacao.getColumnModel().getColumn(7).setMinWidth(0);
-			tblOperacao.getColumnModel().getColumn(7).setMaxWidth(0);
+					new int[]{6});
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

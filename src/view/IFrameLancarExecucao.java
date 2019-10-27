@@ -10,27 +10,23 @@ import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
-import java.sql.SQLException;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JInternalFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
-import model.Operacao;
 import utilitarios.Tabela;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
 import dao.OperacaoDao;
-
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 
 public class IFrameLancarExecucao extends JInternalFrame {
 	
@@ -59,7 +55,7 @@ public class IFrameLancarExecucao extends JInternalFrame {
 	public IFrameLancarExecucao() {
 		setTitle("Lan\u00E7ar Execu\u00E7\u00E3o");
 		setClosable(true);
-		setBounds(0, 0, 603, 600);
+		setBounds(100, 10, 800, 600);
 		
 		 JPanel panel = new JPanel();
          panel.setBackground(SystemColor.controlHighlight);  
@@ -78,12 +74,12 @@ public class IFrameLancarExecucao extends JInternalFrame {
          panel_3.setLayout(new BorderLayout(5, 5));
          
          /*
-         tabela
+         tabela Abertas
          */
          incializaTabelaAbertas();
          JScrollPane scrollPane = new JScrollPane(tblAbertas);
          panel_3.add(scrollPane);
-        /*   */
+         
          JPanel panel_5 = new JPanel();
          panel_3.add(panel_5, BorderLayout.SOUTH);
          
@@ -113,15 +109,14 @@ public class IFrameLancarExecucao extends JInternalFrame {
          panel_1.add(panel_4);
          panel_4.setLayout(new BorderLayout(0, 0));
          /*
-         tabela
+         tabela Execução
          */
-         incializaTabelaExecutadas();
-         tblExecutadas = new JTable();         
-         tblExecutadas.setFont(new Font("Tahoma", Font.PLAIN, 16));
+         incializaTabelaExecutadas();        
          JScrollPane scrollPane_1 = new JScrollPane(tblExecutadas);
-         panel_4.add(scrollPane_1, BorderLayout.CENTER);
          /*   */
          
+         panel_4.add(scrollPane_1, BorderLayout.CENTER);
+                  
          JPanel panel_9 = new JPanel();
          panel_4.add(panel_9, BorderLayout.NORTH);
          
@@ -138,9 +133,6 @@ public class IFrameLancarExecucao extends JInternalFrame {
          
          JPanel panel_12 = new JPanel();
          panel_4.add(panel_12, BorderLayout.SOUTH);
-
-         
-         incializaTabelaExecutadas();
 
          JPanel panel_2 = new JPanel();
          getContentPane().add(panel_2, BorderLayout.SOUTH);
@@ -170,6 +162,10 @@ public class IFrameLancarExecucao extends JInternalFrame {
          panel_2.add(btnSair);
          panel_2.add(button_1);
    
+         tblExecutadas.setColumnSelectionAllowed(false);
+         tblExecutadas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+         tblExecutadas.setFont(new Font("Tahoma", Font.PLAIN, 16));  
+   
          populaTabelaAbertas();
          populaTabelaExecucao();
 
@@ -192,7 +188,8 @@ public class IFrameLancarExecucao extends JInternalFrame {
 				modeloAbertas.getValueAt(numLinha, 4),
 				modeloAbertas.getValueAt(numLinha, 5),
 				modeloAbertas.getValueAt(numLinha, 6),
-				modeloAbertas.getValueAt(numLinha, 7)
+				modeloAbertas.getValueAt(numLinha, 7),
+				modeloAbertas.getValueAt(numLinha, 1)
 		};
 		
 		//modeloExecucao.insertRow(0,new Object[]{});
@@ -213,12 +210,20 @@ public class IFrameLancarExecucao extends JInternalFrame {
 	
 			for (int i = 0; i <= modelo.getRowCount()-1; i++) {
 				if(modelo.getValueAt(i, 8).equals("A")){					
-					// atualiza operações					
+					//ATUALIZA OPERAÇÕES		
+					
+					//sq_estrategia
 					BigDecimal bd = (BigDecimal)modelo.getValueAt(i, 7);
 					int sq_estrategia= Utilitario.converteBigDecimalParaInt(bd);
+					
+					//data da execução
 					String DataDeExcucao=(String)modelo.getValueAt(i, 0);				
 					
-					new OperacaoDao().updateParaExecutada(sq_estrategia,DataDeExcucao);				
+					//vl_corrente
+					BigDecimal valorCorrente = (BigDecimal)modelo.getValueAt(i, 9);
+
+					//atualiza no banco
+					new OperacaoDao().updateParaExecutada(sq_estrategia,DataDeExcucao,valorCorrente);				
 
 					// EXCLUI ESTRATEGIAS
 					new EstrategiaDao().excluir(sq_estrategia);
@@ -237,21 +242,6 @@ public class IFrameLancarExecucao extends JInternalFrame {
 			        JOptionPane.INFORMATION_MESSAGE);
         }
 	}
-    
-/*	private boolean dadosValidos(){
-
-		DefaultTableModel modelo= (DefaultTableModel)tblOperacao.getModel();
-		
-		for (int i = 0; i <= modelo.getRowCount()-1; i++) {
-			if(modelo.getValueAt(i, 1)==null){
-				JOptionPane.showMessageDialog(null, "Valor corrente nulo" , "Aviso", 
-				        JOptionPane.INFORMATION_MESSAGE);
-				return false;
-			}
-		}
-		
-		return true;
-	}*/
 	
 	private void incializaTabelaAbertas(){
 		tblAbertas = new JTable(){
@@ -266,9 +256,14 @@ public class IFrameLancarExecucao extends JInternalFrame {
 	}
 
 	private void incializaTabelaExecutadas(){
-		tblAbertas.setColumnSelectionAllowed(false);
-		tblAbertas.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		tblAbertas.setFont(new Font("Tahoma", Font.PLAIN, 16));  
+		//premite edição na data e valor de compra
+		tblExecutadas = new JTable(){
+			public boolean isCellEditable(int row, int column) {
+				return (column==0 || column==2);
+			}
+		};
+		tblExecutadas.setRowSelectionAllowed(false);
+		//tblExecutadas = new JTable();
 	}
 	
 	private int populaTabelaAbertas(){
@@ -276,14 +271,14 @@ public class IFrameLancarExecucao extends JInternalFrame {
 		
 		try {
 			ret= Tabela.popula(tblAbertas, 
-					new OperacaoDao().buscarAbertas(),
-					6);	
-			//esconde colunas com situação
-/*			tblAbertas.getColumnModel().getColumn(7).setMinWidth(0);
-			tblAbertas.getColumnModel().getColumn(7).setMaxWidth(0);*/
+					new OperacaoDao().buscarAbertas(),				
+					new int[]{6,7}
+			);	
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 		return ret;
 	}	
 
@@ -293,13 +288,16 @@ public class IFrameLancarExecucao extends JInternalFrame {
 		try {
 			ret= Tabela.popula(tblExecutadas, 
 					new OperacaoDao().buscarExecutadas(),
-					7);
-			//esconde colunas com situação
-/*			tblExecutadas.getColumnModel().getColumn(8).setMinWidth(0);
-			tblExecutadas.getColumnModel().getColumn(8).setMaxWidth(0);*/
+					new int[]{7,8,9}			
+			);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		//muda cor de células editáveis
+		Tabela.ajustaCor(tblExecutadas,
+				new int[]{0,2}
+		);
 		return ret;
 	}
 
