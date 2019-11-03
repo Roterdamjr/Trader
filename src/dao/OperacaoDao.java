@@ -13,40 +13,26 @@ import model.Operacao;
 
 public class OperacaoDao extends DaoBase{
 
-    public static void main(String[] args) {
-    	try {
-			new OperacaoDao().updateParaExecutada(106,"01/10/2019",new BigDecimal("12")); 
-System.out.println("Feito");
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}    
-    }
-    
-	public Connection getConnection(){
+
+	public void getConnection(){
 
 		try{
-			Class.forName("oracle.jdbc.driver.OracleDriver");
+			Class.forName("org.sqlite.JDBC");
 		}catch(Exception e){
 			throw new RuntimeException(e);
 		} 
 		
 		try{
-			/*@TESTE CASA*/
-			return DriverManager.getConnection("jdbc:oracle:thin:@//localhost:1521/xe",	"trader","trader");
-			//return DriverManager.getConnection("jdbc:oracle:thin:@//10.1.38.145:1521/xe",					"sae_dsv","itauna");
-			/*@TESTE PRODUCAO*/
-			//
-					
-
+			connection= DriverManager.getConnection("jdbc:sqlite:trader.db");
 		}catch(SQLException e){
 			throw new RuntimeException(e);
 		}
 	}
     
     public void inserirAberta(Operacao obj) throws Exception{
-
-    	stmt= getConnection().prepareStatement("insert into tb_operacao  "
+    	getConnection();
+    	
+    	stmt= connection.prepareStatement("insert into tb_operacao  "
     			+ "(ativo,vl_corrente, vl_compra,stop,gain_parc,"
     			+ "quantidade,gain, situacao) "
     			+ " values(?, ?, ?,?, ?, ?, ?,?)");
@@ -77,8 +63,9 @@ System.out.println("Feito");
     }
     
     public void inserirExecutada(Operacao obj) throws Exception{
-
-    	stmt= getConnection().prepareStatement("insert into tb_operacao  "
+    	getConnection();
+    	
+    	stmt= connection.prepareStatement("insert into tb_operacao  "
     			+ "(ativo,vl_corrente, vl_compra,stop,gain_parc,"
     			+ "quantidade,gain, situacao) "
     			+ " values(?, ?, ?,?, ?, ?, ?,?)");
@@ -110,7 +97,10 @@ System.out.println("Feito");
         
     public void updateParaExecutada(int sqOperacao, String dataCompra, BigDecimal valorCorrente) 
     		throws Exception{
-       	stmt= getConnection().prepareStatement(
+    	
+    	getConnection();
+    	
+       	stmt= connection.prepareStatement(
        			//"update tb_operacao  set situacao='E' where sq_operacao=?");
        	"update tb_operacao  set situacao='E' ,dt_compra=? ,vl_corrente=? where sq_operacao=?"
 
@@ -138,9 +128,42 @@ System.out.println("Feito");
     	
     }
     
-    public void excluir() throws Exception{
+    public void updateParaLiquidada(int sqOperacao, String data, BigDecimal valorCorrente) 
+    		throws Exception{
+    	
+    	getConnection();
+    	
+       	stmt= connection.prepareStatement(
+       			"update tb_operacao set situacao='L' ,dt_venda=? ,vl_corrente=? where sq_operacao=?"
 
-    	stmt= getConnection().prepareStatement("delete from tb_operacao");
+       	);
+       	
+       	stmt.setDate(1, Utilitario.converteStringParaSQLData(data));
+       	stmt.setBigDecimal(2, valorCorrente);
+       	stmt.setInt(3,sqOperacao);
+
+    	stmt.execute();
+    	
+		if (stmt != null) {
+			try {
+				stmt.close();
+			} catch (SQLException e) {	e.printStackTrace();
+			}
+		}
+		
+		if (connection != null) {
+			try {
+				connection.close();
+			} catch (SQLException e) {	e.printStackTrace();
+			}
+		}
+    	
+    }
+    
+    public void excluir() throws Exception{
+    	getConnection();
+    	
+    	stmt= connection.prepareStatement("delete from tb_operacao");
     	stmt.execute();
       
 		if (stmt != null) {
@@ -162,8 +185,8 @@ System.out.println("Feito");
     	String query= "select  ativo, vl_compra,stop,gain_parc,"
     			+ " quantidade,gain,sq_operacao,situacao"
 				+ " from tb_operacao  where situacao='A' ORDER BY ATIVO";		
-
-    	stmt= getConnection().prepareStatement(query);
+    	getConnection();
+    	stmt= connection.prepareStatement(query);
     	rs=stmt.executeQuery();
 		
 		return rs;
@@ -174,24 +197,66 @@ System.out.println("Feito");
     	String query= "select  dt_compra, ativo, vl_compra,stop,gain_parc,"
     			+ " quantidade,gain,sq_operacao,situacao, vl_corrente"
 				+ " from tb_operacao  where situacao='E' ORDER BY ATIVO";		
-
-    	stmt= getConnection().prepareStatement(query);
+    	getConnection();
+    	stmt= connection.prepareStatement(query);
     	rs=stmt.executeQuery();
 		
 		return rs;
     }
 
-    public ResultSet buscarExecutadasParaAcompanhar() throws Exception{
+    public ResultSet buscarExecutadasNaLiquidacao() throws Exception{
 
-    	String query=  "select  ativo,quantidade, vl_compra,vl_corrente, "
-    			+ " (vl_corrente-stop)/(gain_parc-stop)*100 andamento, stop,gain_parc, "
-    			+ " gain,sq_operacao from tb_operacao   "
-    			+ " where situacao='E' ORDER BY ATIVO";
-	
-
-    	stmt= getConnection().prepareStatement(query);
+    	String query= "select   ativo,quantidade, vl_compra,sq_operacao,situacao "
+				+ " from tb_operacao  where situacao='E' ORDER BY ATIVO";	
+    	
+    	getConnection();
+    	stmt= connection.prepareStatement(query);
     	rs=stmt.executeQuery();
 		
 		return rs;
+    }
+    
+    public ResultSet buscarExecutadasParaAcompanhar() throws Exception{
+
+    	String query=       	
+	    	 "with t as( " 
+	    	+ "	    select  ativo,quantidade, vl_compra,vl_corrente, " 
+	    	+ "	        (vl_corrente-stop)/(gain_parc-stop)*100 andamento,"
+	    	+ "	             (vl_corrente-vl_compra)*quantidade  lucro,"
+	    	+ "	         vl_corrente*quantidade             vl_aplicado,"
+	    	+ "	         stop,gain_parc, gain,sq_operacao"
+	    	+ "	     from tb_operacao"
+	    	+ "	     where situacao='E'  )"
+	    	+ "	 select ativo,quantidade, vl_compra,vl_corrente,"
+	    	+ "	     round(andamento) andamento,"
+	    	+ "	     lucro,  vl_aplicado,"
+	    	+ "	     stop,gain_parc, gain,sq_operacao  "
+	    	+ "	 from t  ORDER BY ATIVO";
+    	
+    	
+    	
+    	getConnection();
+    	stmt= connection.prepareStatement(query);
+    	rs=stmt.executeQuery();
+
+		return rs;
+    }
+    
+    public ResultSet buscarLiquidadas() throws Exception{
+
+    	String query= "select  dt_venda, vl_corrente vl_venda, ativo, quantidade, sq_operacao, situacao"
+				+ " from tb_operacao  where situacao='L' ORDER BY ATIVO";		
+    	getConnection();
+    	stmt= connection.prepareStatement(query);
+    	rs=stmt.executeQuery();
+		
+		return rs;
+    }
+
+    public static void main(String[] args) {
+    	try {
+			new OperacaoDao().updateParaExecutada(106,"01/10/2019",new BigDecimal("12")); 
+		} catch (Exception e) {	e.printStackTrace();
+		}    
     }
 }

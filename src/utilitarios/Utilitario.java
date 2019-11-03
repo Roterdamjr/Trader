@@ -8,7 +8,6 @@ import java.math.BigDecimal;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -19,8 +18,6 @@ import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.MaskFormatter;
-
-import dao.EstrategiaDao;
 
 
 
@@ -124,7 +121,12 @@ public class Utilitario {
 			// break;
 		case "java.math.BigDecimal":
 			return (BigDecimal)obj;
-			// break;		    
+
+		case "java.lang.Double":			
+			return new BigDecimal((Double)obj);
+		
+		case "java.lang.Integer":	
+			return new BigDecimal((Integer)obj);
 		default:
 			return null;
 		}
@@ -150,11 +152,13 @@ public class Utilitario {
 	
 	public static int converteBigDecimalParaInt(BigDecimal bd){
 		return Integer.valueOf(bd.toString());
-		
-		
+				
 	}
 	
+	public static String converteBigDecimalParaString(BigDecimal bd){
+		return 	bd.toString().replace(".", ",");
 	
+	}	
 	
 	
 	

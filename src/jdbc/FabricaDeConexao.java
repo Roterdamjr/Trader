@@ -25,10 +25,10 @@ public class FabricaDeConexao {
 		
 		try{
 			/*@TESTE CASA*/
-			return DriverManager.getConnection("jdbc:oracle:thin:@//localhost:1521/xe",	"trader","trader");
-			//return DriverManager.getConnection("jdbc:oracle:thin:@//10.1.38.145:1521/xe",					"sae_dsv","itauna");
-			/*@TESTE PRODUCAO*/
-			//
+			//return DriverManager.getConnection("jdbc:oracle:thin:@//localhost:1521/xe",	"trader","trader");
+			return DriverManager.getConnection("jdbc:sqlite:trader.db");
+
+		
 					
 
 		}catch(SQLException e){

@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -25,7 +27,6 @@ import javax.swing.table.DefaultTableModel;
 import model.Estrategia;
 import utilitarios.Utilitario;
 import dao.EstrategiaDao;
-import java.awt.GridLayout;
 
 public class IFrameEstrategias extends JInternalFrame {
 	
@@ -135,7 +136,7 @@ public class IFrameEstrategias extends JInternalFrame {
 						});
 				btnInserir.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent arg0) {
-						inserir();
+						preencherNovaEstrategia();
 					}
 				});
 
@@ -143,11 +144,16 @@ public class IFrameEstrategias extends JInternalFrame {
 		
 	}
 
-	private void inserir(){
-		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
-		modelo.addRow(new Object[]{null,null,null,null,null,null});
+	private void preencherNovaEstrategia(){
+		JDialog d=new DialogEstrategia(this);
+		d.setVisible(true); 
 	} 
 
+	public void incluirEstrategia(Object[] linha){
+		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
+		modelo.addRow(linha);
+	}
+	
 	private void excluir(){
 		DefaultTableModel modelo= (DefaultTableModel)tblEstrategia.getModel();
         if (tblEstrategia.getSelectedRow() >= 0){

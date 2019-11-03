@@ -34,7 +34,7 @@ import dao.OperacaoDao;
 public class IFrameLancarAbertura extends JInternalFrame {
 	private JTable tblEstrategia;
 	private JTable tblOperacao;
-	private ArrayList<BigDecimal> sqEstrategiasparaExcluir= new ArrayList<BigDecimal>();
+	private ArrayList<Integer> sqEstrategiasparaExcluir= new ArrayList<Integer>();
 	/**
 	 * Launch the application.
 	 */
@@ -200,10 +200,10 @@ public class IFrameLancarAbertura extends JInternalFrame {
 
 		modeloOperacao.insertRow(modeloOperacao.getRowCount(),linha);
 		
-		//marca linha para exclusão no BD
-		BigDecimal bd = (BigDecimal)modeloEstrategia.getValueAt(numLinha, 6);		
-		sqEstrategiasparaExcluir.add(bd);
-		
+		//marca linha para exclusão no BD		
+		Integer sq = (Integer)modeloEstrategia.getValueAt(numLinha, 6);		
+		sqEstrategiasparaExcluir.add(sq);
+						
 		//exclui estrategia da table origem
 		modeloEstrategia.removeRow(numLinha);
 	}
@@ -216,6 +216,11 @@ public class IFrameLancarAbertura extends JInternalFrame {
 	
 			for (int i = 0; i <= modelo.getRowCount()-1; i++) {
 				if(modelo.getValueAt(i, 6)==null){ 
+					
+					Object obj=modelo.getValueAt(i, 1);
+					System.out.println(obj.getClass().getName());
+					
+					
 					Operacao est= new Operacao();
 					est.setAtivo((String)modelo.getValueAt(i, 0));
 					est.setStart(Utilitario.converteParaBigDecimal(modelo.getValueAt(i, 1)));
@@ -229,8 +234,8 @@ public class IFrameLancarAbertura extends JInternalFrame {
 			}
 			
 			// exclui Estrategias
-			for(BigDecimal obj:sqEstrategiasparaExcluir){
-				int sq_estrategia= Utilitario.converteBigDecimalParaInt(obj);
+			for(Integer obj:sqEstrategiasparaExcluir){
+				int sq_estrategia= obj.intValue();
 				new EstrategiaDao().excluir(sq_estrategia);
 			}
 		
@@ -299,7 +304,7 @@ public class IFrameLancarAbertura extends JInternalFrame {
 		try {
 			ret = Tabela.popula(tblOperacao, 
 					new OperacaoDao().buscarAbertas(),
-					new int[]{6});
+					new int[]{6,7});
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

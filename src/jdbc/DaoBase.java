@@ -11,7 +11,7 @@ public class DaoBase {
 	protected PreparedStatement stmt;	
 	protected Connection connection;
 	
-	public DaoBase(){
+/*	public DaoBase(){
 		try{
 			FabricaDeConexao fabrica = FabricaDeConexao.getInstancia();
 			connection=fabrica.getConnection();
@@ -31,7 +31,7 @@ public class DaoBase {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 
 	protected void executaDML(String query) throws Exception{
 

@@ -192,11 +192,7 @@ public class IFrameLancarExecucao extends JInternalFrame {
 				modeloAbertas.getValueAt(numLinha, 1)
 		};
 		
-		//modeloExecucao.insertRow(0,new Object[]{});
 		modeloExecucao.insertRow(modeloExecucao.getRowCount(),linha);
-				
-		//marca linha para update no BD	
-		//linhasParaUpdate.add(numLinha);
 		
 		//exclui linha da table origem
 		modeloAbertas.removeRow(numLinha);
@@ -212,21 +208,20 @@ public class IFrameLancarExecucao extends JInternalFrame {
 				if(modelo.getValueAt(i, 8).equals("A")){					
 					//ATUALIZA OPERAÇÕES		
 					
-					//sq_estrategia
-					BigDecimal bd = (BigDecimal)modelo.getValueAt(i, 7);
-					int sq_estrategia= Utilitario.converteBigDecimalParaInt(bd);
+					//sq_operacao
+					Integer itg = (Integer)modelo.getValueAt(i, 7);
+					int sq=  itg.intValue();
 					
 					//data da execução
 					String DataDeExcucao=(String)modelo.getValueAt(i, 0);				
 					
 					//vl_corrente
-					BigDecimal valorCorrente = (BigDecimal)modelo.getValueAt(i, 9);
+					BigDecimal valorCorrente = Utilitario.converteParaBigDecimal(							
+							modelo.getValueAt(i, 9)	);
 
 					//atualiza no banco
-					new OperacaoDao().updateParaExecutada(sq_estrategia,DataDeExcucao,valorCorrente);				
+					new OperacaoDao().updateParaExecutada(sq,DataDeExcucao,valorCorrente);				
 
-					// EXCLUI ESTRATEGIAS
-					new EstrategiaDao().excluir(sq_estrategia);
 				}
 			}
 			
@@ -298,6 +293,7 @@ public class IFrameLancarExecucao extends JInternalFrame {
 		Tabela.ajustaCor(tblExecutadas,
 				new int[]{0,2}
 		);
+		
 		return ret;
 	}
 

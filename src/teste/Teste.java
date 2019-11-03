@@ -1,26 +1,39 @@
 package teste;
 
+import java.sql.*;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+public class Teste{
 
-import utilitarios.Utilitario;
+    private static void connect() {
+        try (Connection connection = DriverManager.getConnection("jdbc:sqlite:trader.db")) {
 
-public class Teste {
+            System.out.println("Conexão realizada !!!!");
 
-    
-    public static void main(String[] args) {
-    	//new Teste().executar();
-    	System.out.println(Utilitario.buscaDataAtual());
-    	
-    	
+            Statement statement = connection.createStatement();
+
+ /*           // criando uma tabela
+            statement.execute("CREATE TABLE IF NOT EXISTS RC_TEST( ID INTEGER, NOME VARCHAR )");
+
+            // inserindo registros
+            statement.execute("INSERT INTO RC_TEST( ID, NOME) VALUES (1, 'Wolmir'), (2, 'Garbin')");*/
+
+            // lendo os registros
+            PreparedStatement stmt = connection.prepareStatement("select * from tb_aluno");
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+               // Integer id = resultSet.getInt("ID");
+                String nome = resultSet.getString("NOME");
+
+                System.out.println(  nome);
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
-    
-    private void executar(){
-    	Date dataCorrente = Calendar.getInstance().getTime();
-  	 String dataRet=new SimpleDateFormat("dd/MM/yyyy").format(dataCorrente);
 
+    public static void main(String[] args) {
+        connect();
     }
 }

@@ -34,27 +34,13 @@ public class Operacao {
 	}
 
 
-
-
-
-
-
-
 	public void setVlorCorrente(BigDecimal vlorCorrente) {
 		this.vlorCorrente = vlorCorrente;
 	}
 
-
-
-
-
-
-
-
 	public BigDecimal getRisco() {
 		return risco;
 	}
-
 
 	public void setRisco(BigDecimal risco) {
 		this.risco = risco;

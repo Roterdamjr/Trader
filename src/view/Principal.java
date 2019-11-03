@@ -16,12 +16,15 @@ public class Principal extends JFrame{
     private JDesktopPane desktopPane;
     private JMenuBar menuBar;
     private JMenu mnPrincipal;
-    private IFrameEstrategias frameEstrategia;
-    private IFrameLancarAbertura frameLancarAbertura;
     private JMenuItem mniLancarExecucao;
+    private JMenuItem mniLiquidacao;
+    private JMenu mnRelatorio;
+    private JMenuItem mniAcompanhar;    
+    private IFrameEstrategias frameEstrategia;
+    private IFrameLancarAbertura frameLancarAbertura;    
     private IFrameLancarExecucao frameLancarExecucao;
-    private IFrameAcompanharExecucao frameAcompanharExecucao;
-    private JMenuItem mniAcompanharExecucao;
+    private IFrameLiquidacao frameLiquidacao;
+    private IFrameAcompanhar frameAcompanhar;
  
     public static void main(String args[]){
 		EventQueue.invokeLater(new Runnable() {
@@ -53,7 +56,7 @@ public class Principal extends JFrame{
         menuBar = new JMenuBar();
         setJMenuBar(menuBar);
         
-        mnPrincipal = new JMenu("Principal");
+        mnPrincipal = new JMenu("Opera\u00E7\u00F5es");
         menuBar.add(mnPrincipal);
                 
         JMenuItem mniEstrategia = new JMenuItem("Estrat\u00E9gia");
@@ -80,23 +83,35 @@ public class Principal extends JFrame{
         });
         mnPrincipal.add(mniLancarExecucao);
         
-        mniAcompanharExecucao = new JMenuItem("Acompanhar Execucao");
-        mniAcompanharExecucao.addActionListener(new ActionListener() {
+        mniLiquidacao = new JMenuItem("Liquida\u00E7\u00E3o");
+        mniLiquidacao.addActionListener(new ActionListener() {
         	public void actionPerformed(ActionEvent arg0) {
-        		exibeframeAcompanharExecucao();
+        		exibeframeLiquidacao();
         	}
         });
-        mnPrincipal.add(mniAcompanharExecucao);
+        mnPrincipal.add(mniLiquidacao);
+        
+        mnRelatorio = new JMenu("Relat\u00F3rio");
+        menuBar.add(mnRelatorio);
+        
+        mniAcompanhar = new JMenuItem("Acompanhar");
+        mniAcompanhar.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent arg0) {
+        		exibeAcompanhar();
+        	}
+        });
+        mnRelatorio.add(mniAcompanhar);
         
         
         setVisible(true);
         setResizable(true);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        //exibeframeEstrategia();
+       //exibeframeEstrategia();
         //exibeframeLancarAbertura();
-        //exibeframeLancarExecucao();
-        exibeframeAcompanharExecucao();
+        exibeframeLancarExecucao();
+        //exibeframeLiquidacao();
+        //exibeAcompanhar();
     }
  
 	private void exibeframeEstrategia()	{
@@ -137,15 +152,29 @@ public class Principal extends JFrame{
         }
 	}
  
-	private void exibeframeAcompanharExecucao()	{
-        if(frameAcompanharExecucao == null){
-        	frameAcompanharExecucao = new IFrameAcompanharExecucao();
-        	frameAcompanharExecucao.setVisible(true);
-            desktopPane.add(frameAcompanharExecucao);
+	private void exibeframeLiquidacao()	{
+        if(frameLiquidacao == null){
+        	frameLiquidacao = new IFrameLiquidacao();
+        	frameLiquidacao.setVisible(true);
+            desktopPane.add(frameLiquidacao);
         }
-        else if(!frameAcompanharExecucao.isVisible()){
-        	frameAcompanharExecucao.setVisible(true);
-            desktopPane.add(frameAcompanharExecucao);
+        else if(!frameLiquidacao.isVisible()){
+        	frameLiquidacao.setVisible(true);
+            desktopPane.add(frameLiquidacao);
         }
 	}
+	
+	private void exibeAcompanhar()	{
+        if(frameAcompanhar == null){
+        	frameAcompanhar = new IFrameAcompanhar();
+        	frameAcompanhar.setVisible(true);
+            desktopPane.add(frameAcompanhar);
+        }
+        else if(!frameAcompanhar.isVisible()){
+        	frameAcompanhar.setVisible(true);
+            desktopPane.add(frameAcompanhar);
+        }
+	}
+	
+	
 }
